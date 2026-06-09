@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Beige Bananas — GTM Discovery</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#1B1464;--navy-dark:#0D0B3A;--navy-mid:#2E2A8A;
+  --orange:#F7941D;--orange-light:#FFF4E6;--navy-light:#EEEDF8;
+  --text:#1B1464;--text-muted:#6B6A9A;--border:#D8D7EF;
+  --surface:#F8F8FE;--white:#FFFFFF;
+}
+body{font-family:'Montserrat',sans-serif;background:var(--surface);color:var(--text);min-height:100vh;}
+.hero{background:linear-gradient(135deg,var(--navy-dark) 0%,var(--navy) 60%,var(--navy-mid) 100%);padding:2rem 2rem 3rem;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:300px;height:300px;background:var(--orange);opacity:0.07;border-radius:50%;}
+.hero::after{content:'';position:absolute;bottom:-80px;left:-40px;width:200px;height:200px;background:var(--orange);opacity:0.05;border-radius:50%;}
+.hero-inner{max-width:700px;margin:0 auto;position:relative;z-index:1;}
+.hero-brand{display:flex;align-items:center;gap:14px;margin-bottom:1.5rem;}
+.bb-logo-wrap{width:48px;height:48px;flex-shrink:0;}
+.hero-brand-name{font-size:16px;font-weight:800;color:rgba(255,255,255,0.95);letter-spacing:0.02em;}
+.hero-title{font-size:28px;font-weight:800;color:white;line-height:1.2;margin-bottom:0.5rem;}
+.hero-title span{color:var(--orange);}
+.hero-desc{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.7;max-width:500px;}
+.progress-wrap{background:white;border-bottom:1px solid var(--border);padding:1rem 2rem;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(27,20,100,0.06);}
+.progress-inner{max-width:700px;margin:0 auto;}
+.progress-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.progress-label{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;}
+.progress-pct{font-size:13px;font-weight:700;color:var(--navy);}
+.progress-track{height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--navy),var(--orange));border-radius:3px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1);}
+.dot-row{display:flex;align-items:center;gap:5px;margin-top:8px;flex-wrap:wrap;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:all 0.3s;}
+.dot.done{background:var(--orange);}
+.dot.current{background:var(--navy);box-shadow:0 0 0 3px rgba(27,20,100,0.15);transform:scale(1.3);}
+.main{max-width:700px;margin:0 auto;padding:2rem;}
+.section-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:4px 12px;border-radius:20px;background:var(--navy-light);color:var(--navy);border:1px solid rgba(27,20,100,0.12);margin-bottom:1rem;}
+.q-counter{font-size:11px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
+.q-text{font-size:19px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:6px;}
+.q-hint{font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:1.5rem;font-weight:500;}
+textarea.answer-input{width:100%;min-height:130px;padding:14px 16px;font-family:'Montserrat',sans-serif;font-size:14px;font-weight:500;border:1.5px solid var(--border);border-radius:12px;background:white;color:var(--text);line-height:1.7;resize:vertical;transition:border-color 0.2s,box-shadow 0.2s;}
+textarea.answer-input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,20,100,0.08);}
+textarea.answer-input::placeholder{color:#C0BEDD;font-weight:400;}
+.word-count{font-size:11px;color:var(--text-muted);text-align:right;margin-top:4px;font-weight:600;}
+.word-count.good{color:#059669;}
+.toolbar{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.btn-tool{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:20px;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;border:1.5px solid;letter-spacing:0.01em;}
+.btn-voice{border-color:var(--navy);background:white;color:var(--navy);}
+.btn-voice:hover{background:var(--navy);color:white;}
+.btn-voice.recording{background:#FFF0F0;border-color:#E53935;color:#E53935;}
+.btn-ask{border-color:var(--orange);background:white;color:var(--orange);}
+.btn-ask:hover{background:var(--orange);color:white;}
+.btn-upload{border-color:var(--border);background:white;color:var(--text-muted);}
+.btn-upload:hover{border-color:var(--navy);color:var(--navy);}
+.btn-refine{border-color:#059669;background:white;color:#059669;display:none;}
+.btn-refine.show{display:inline-flex;}
+.btn-refine:hover{background:#059669;color:white;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.rec-dot{width:8px;height:8px;border-radius:50%;background:#E53935;animation:pulse 1s ease-in-out infinite;display:inline-block;}
+.file-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;background:var(--navy-light);font-size:11px;font-weight:600;color:var(--navy);}
+.file-chip button{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:14px;line-height:1;padding:0 0 0 3px;}
+.ai-panel{margin-top:12px;padding:14px 16px;border-radius:12px;background:var(--navy-light);border:1px solid rgba(27,20,100,0.1);font-size:13px;color:var(--navy);line-height:1.7;display:none;font-weight:500;}
+.ai-panel.open{display:block;}
+.ai-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--orange);margin-bottom:6px;}
+.refined-box{margin-top:10px;padding:14px 16px;border-radius:12px;background:white;border:1.5px solid #059669;font-size:13px;color:var(--text);line-height:1.7;display:none;}
+.refined-box.show{display:block;}
+.refined-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#059669;margin-bottom:6px;}
+.apply-btn{margin-top:8px;padding:6px 14px;border-radius:8px;background:#059669;color:white;border:none;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
+.kudos{margin-top:12px;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:700;border:1.5px solid;display:none;align-items:center;gap:8px;}
+.kudos.show{display:flex;}
+.kudos.good{background:#F0FDF4;color:#166534;border-color:#BBF7D0;}
+.kudos.great{background:#EEF2FF;color:#3730A3;border-color:#C7D2FE;}
+.kudos.fire{background:#FFF7ED;color:#9A3412;border-color:#FED7AA;}
+.streak-banner{display:none;align-items:center;gap:8px;padding:8px 14px;border-radius:20px;background:var(--orange-light);border:1px solid rgba(247,148,29,0.25);font-size:12px;font-weight:700;color:var(--orange);margin-bottom:1.25rem;}
+.streak-banner.show{display:flex;}
+.pyramid-wrap{margin-bottom:1.5rem;}
+.pyramid-intro{font-size:13px;color:var(--text-muted);font-weight:500;margin-bottom:1rem;}
+.pyramid-container{display:flex;flex-direction:column;align-items:center;gap:6px;padding:1rem 0;}
+.pyramid-tier{display:flex;align-items:center;justify-content:center;border-radius:8px;cursor:grab;transition:all 0.2s;border:2px solid transparent;position:relative;user-select:none;}
+.pyramid-tier:active{cursor:grabbing;}
+.pyramid-tier.drag-over{border-color:var(--orange);background:var(--orange-light)!important;}
+.pyramid-tier-label{font-size:12px;font-weight:700;color:white;text-align:center;padding:0 1rem;}
+.pyramid-rank{position:absolute;left:12px;font-size:11px;font-weight:800;color:rgba(255,255,255,0.7);}
+.pyramid-note{font-size:11px;color:var(--text-muted);text-align:center;margin-top:8px;font-weight:500;}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;}
+.btn-skip{background:none;border:none;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer;text-decoration:underline;}
+.btn-next{padding:12px 30px;border-radius:10px;background:linear-gradient(135deg,var(--navy),var(--navy-mid));color:white;border:none;font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.2s;box-shadow:0 4px 15px rgba(27,20,100,0.2);}
+.btn-next:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(27,20,100,0.3);}
+.summary-card{background:white;border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem;}
+.summary-sect{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--orange);margin-bottom:0.75rem;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.summary-q{font-size:12px;color:var(--text-muted);margin-bottom:3px;font-weight:500;}
+.summary-a{font-size:14px;color:var(--text);margin-bottom:12px;line-height:1.6;font-weight:500;}
+.brief-card{background:white;border:2px solid var(--orange);border-radius:12px;padding:1.25rem;margin-bottom:1rem;}
+.brief-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--orange);margin-bottom:0.75rem;}
+#brief-text{font-size:13px;line-height:1.8;color:var(--text);white-space:pre-wrap;font-weight:500;}
+.btn-primary{padding:11px 24px;border-radius:10px;background:linear-gradient(135deg,var(--navy),var(--navy-mid));color:white;border:none;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-right:8px;}
+.btn-primary:hover{opacity:0.9;}
+.btn-secondary{padding:11px 24px;border-radius:10px;border:1.5px solid var(--border);background:white;color:var(--text-muted);font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-email{padding:11px 24px;border-radius:10px;background:linear-gradient(135deg,var(--orange),#E8820A);color:white;border:none;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-right:8px;}
+.btn-email:hover{opacity:0.9;}
+.complete-hero{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:2.5rem 2rem;text-align:center;margin:-2rem -2rem 2rem;border-radius:0;}
+.complete-hero h2{font-size:24px;font-weight:800;color:white;margin-bottom:0.5rem;}
+.complete-hero p{font-size:14px;color:rgba(255,255,255,0.6);max-width:420px;margin:0 auto;}
+.score-circle{width:80px;height:80px;border-radius:50%;border:3px solid var(--orange);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;margin:1rem auto;}
+.score-num{font-size:24px;font-weight:800;color:var(--orange);line-height:1;}
+.score-lbl{font-size:10px;font-weight:600;color:rgba(255,255,255,0.5);}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;}
+.generating{font-size:13px;color:var(--text-muted);font-weight:500;margin:1rem 0;display:flex;align-items:center;gap:8px;}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;color:white;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;}
+.toast.success{background:#059669;}
+.toast.error{background:#E53935;}
+.toast.show{opacity:1;}
+#file-input{display:none;}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <div class="bb-logo-wrap">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
+          <rect width="48" height="48" rx="10" fill="#1B1464"/>
+          <path d="M12 10 L12 38 L25 38 C32 38 36 34 36 28 C36 24 34 21 30 20 C33 18 34 15 34 11 C34 7 30 10 24 10 Z" fill="url(#bbg)"/>
+          <defs>
+            <linearGradient id="bbg" x1="12" y1="10" x2="36" y2="38" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#F7941D"/>
+              <stop offset="100%" stop-color="#E8820A"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div>
+        <div class="hero-brand-name">Beige Bananas</div>
+      </div>
+    </div>
+    <div class="hero-title">GTM Discovery <span>Intake</span></div>
+    <div class="hero-desc">21 questions. 15 minutes. Speak or type. Everything here shapes the next 90 days.</div>
+  </div>
+</div>
+
+<div class="progress-wrap" id="pwrap">
+  <div class="progress-inner">
+    <div class="progress-meta">
+      <span class="progress-label" id="plabel">Question 1 of 21</span>
+      <span class="progress-pct" id="ppct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="pfill" style="width:0%"></div></div>
+    <div class="dot-row" id="dots"></div>
+  </div>
+</div>
+
+<div class="main" id="main"></div>
+<input type="file" id="file-input" accept=".pdf,.doc,.docx,.txt,.pptx,.png,.jpg"/>
+
+<script>
+emailjs.init('YBzSA-GQjpXaAVkDujiKh');
+
+const OPENAI_KEY = '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';
+const EMAILJS_SERVICE = 'service_7pk942j';
+const EMAILJS_TEMPLATE = 'template_lbsct7q';
+
+const SERVICES = [
+  {id:'genai',label:'Generative AI',color:'#1B1464'},
+  {id:'ml',label:'ML Models',color:'#2E2A8A'},
+  {id:'dataeng',label:'Data Engineering',color:'#3D35A8'},
+  {id:'dash',label:'Dashboards & BI',color:'#5046C8'},
+  {id:'consult',label:'Data Consulting',color:'#F7941D'},
+  {id:'esg',label:'ESG Reporting',color:'#E8820A'},
+  {id:'connectors',label:'Prebuilt Connectors',color:'#C46A08'},
+];
+
+const QUESTIONS = [
+  {section:'Role & Direction',icon:'🎯',
+   q:'if i take this role and we sit here 90 days from now, what does success look like for both of us? what would have specifically happened for Beige Bananas, and what would you want me to have built?',
+   hint:'think revenue, a specific client type coming in, or a narrative that is finally landing. what is the concrete thing?',
+   aiHint:'What milestone would make you tell Yuktesh the GTM hire paid off? Name one specific thing that happened, not a direction you moved in.'},
+  {section:'Revenue North Star',icon:'📈',
+   q:'where does Beige Bananas need to be in 6 months, and where in 12? what is the real target you are building toward?',
+   hint:'6 months and 12 months are two different GTM builds. what is the actual destination?',
+   aiHint:'Think about where you need to be to feel like the business has real momentum. Not the safe answer, the one you talk about internally.'},
+  {section:'Revenue North Star',icon:'📈',
+   q:'to get there, is the story about winning more clients or going deeper with fewer, bigger ones?',
+   hint:'broad awareness play vs deep account-based marketing. which one fits where you are right now?',
+   aiHint:'Think about your delivery capacity. Can you realistically serve 10 new clients in 6 months, or does winning 2 or 3 big ones make more sense?'},
+  {section:'How Clients Find You',icon:'📡',
+   q:'how do clients first hear about Beige Bananas today, and what makes them raise their hand? walk me through how the last few came in.',
+   hint:'warm intro, someone saw a post, met you at a conference, found the website. what is the most common path?',
+   aiHint:'Go through your last 3 to 5 clients one by one. For each one, how did they first hear about you and what made them actually reach out?'},
+  {section:'How Clients Find You',icon:'📡',
+   q:'where in the journey from first awareness to first conversation do you feel like you are losing people right now?',
+   hint:'are the right people not finding you, or they find you but do not reach out? those are two different problems.',
+   aiHint:'Think about what happens after someone sees your LinkedIn or visits the website. Where does the trail go cold?'},
+  {section:'How Clients Find You',icon:'📡',
+   q:'what is the most common reason a prospect goes cold before they even get on a call?',
+   hint:'messaging did not resonate, they could not figure out if you were for them, someone else got there first.',
+   aiHint:'Think about the last 3 or 4 prospects who showed early interest but never booked a call. What do you think happened?'},
+  {section:'How Clients Find You',icon:'📡',
+   q:'what does your current demand generation look like, is it systematic or mostly relationship and referral driven right now?',
+   hint:'relationship-driven is fine at your stage but it does not scale. is anything generating interest without you being in the room?',
+   aiHint:'Is there any outreach running without you personally driving it? Any content or sequences producing conversations on their own?'},
+  {section:'Who the Buyer Is',icon:'🎯',
+   q:'describe your single best client. not the biggest, the one who got the most value, came back the fastest, and told others about you. what is their exact title, company size, and what were they urgently trying to solve?',
+   hint:'that person is your bullseye. the more specific you are here, the sharper every piece of marketing we build.',
+   aiHint:'Picture the client you would clone if you could. What is their title, what does their company look like, and what problem were they dealing with when they first called you?'},
+  {section:'Who the Buyer Is',icon:'🎯',
+   q:'when you are selling to a media company, who is the first person you are typically talking to? a Director of Data, a VP of Analytics, a CDO? and does that entry point change in CPG or Retail?',
+   hint:'entry point changes who we write for, where we show up, and what the message says.',
+   aiHint:'Think about your last media deal vs your last CPG or Retail deal. Were you talking to the same seniority and function, or did the first conversation look completely different?'},
+  {section:'Revenue Model',icon:'💰',
+   q:'how do you structure engagements, fixed project, monthly retainer, or by hours? and does that vary depending on which service you are selling?',
+   hint:'retainer relationships are easier to build content and case studies around. where are most of your clients right now?',
+   aiHint:'Are most clients on ongoing retainers or one-off projects? Does that change between a dashboard build vs a gen AI engagement?'},
+  {section:'Revenue Model',icon:'💰',
+   q:'what percentage of your revenue is coming from clients who have been with you more than 6 months, and when they come back do they expand the scope or stay flat?',
+   hint:'expansion means focus on new logos. flat repeat means the story we are telling needs work first.',
+   aiHint:'Roughly, how much of your revenue is from clients signed more than 6 months ago? And when they come back, are they asking for more or just renewing the same scope?'},
+  {section:'Service Hierarchy',icon:'🏆',
+   q:'rank your 7 service lines in order of what you lead with, what you sell second, and what is the by the way we also do this. drag to rank.',
+   hint:'what you lead with is your narrative wedge. what you sell second is your expansion story.',
+   aiHint:'Think about your last 5 pitches. What did you open with? What came up naturally after they said yes? What did you only mention if they asked?',
+   isPyramid:true},
+  {section:'Proof & Positioning',icon:'⭐',
+   q:'what is the strongest result you have delivered for a client, with an actual before and after number? not what the technology did, what changed in their business.',
+   hint:'reporting time cut from 3 days to 4 hours, forecast accuracy up 28%. what is your version?',
+   aiHint:'Think about the client who got the most dramatic improvement. What did their situation look like before you came in, and what was measurably different 3 to 6 months later?'},
+  {section:'Proof & Positioning',icon:'⭐',
+   q:'when a client chooses you over a competitor, what do they actually say is the reason? and if you had to turn that into one sentence that goes on the website, what would it be?',
+   hint:'what clients say when they refer you is your real positioning. that one sentence is what we build all the messaging around.',
+   aiHint:'Think about the last time a client told you why they picked you over someone else. What exact words did they use?'},
+  {section:'Proof & Positioning',icon:'⭐',
+   q:'when a happy client refers you to a colleague, what words do they actually use to describe you? we will use this directly for your positioning.',
+   hint:'the language clients use when they refer you is already your positioning. we just need to capture it and put it everywhere.',
+   aiHint:'Think about the last warm intro you received. What did the person who made the intro say about you in that message?'},
+  {section:'Content & Distribution',icon:'📣',
+   q:'where did your last 10 clients actually come from? go through them one by one. your personal network, a specific warm intro, a conference, LinkedIn, or the website.',
+   hint:'the pattern in that list tells us exactly which channel to invest in and which ones to stop pretending are working.',
+   aiHint:'Try to go through each of the last 10 clients individually. Even if most came from your network, knowing which specific part matters a lot.'},
+  {section:'Content & Distribution',icon:'📣',
+   q:'has any piece of content, a LinkedIn post, a talk, something on the insights page, ever directly started a conversation with a potential client? which one and what happened?',
+   hint:'one real example of content producing a conversation is more useful than any strategy doc.',
+   aiHint:'Even one example of a post or talk that led to a DM or an intro is a signal worth building on. Has anything like that happened, even once?'},
+  {section:'Content & Distribution',icon:'📣',
+   q:'what does your current GTM and marketing stack look like? do you have a CRM, anything tracking website visitors, outbound tooling like Apollo or Clay, and how are follow-ups being managed?',
+   hint:'no stack means we build one from scratch. existing stack means we audit and fix it. either is fine.',
+   aiHint:'Think about where you store contact info, how you track conversations, and whether anyone is using a tool to manage outreach sequences or website visitor data.'},
+  {section:'GTM Gaps',icon:'🔍',
+   q:'if your ideal client, that Director of Data or CDO at a Fortune 500 media company, landed on beigebananas.com right now, would it be obvious in 3 seconds that you are built for them?',
+   hint:'does your best-fit client immediately know you are for them, or does the site try to speak to everyone and end up saying nothing?',
+   aiHint:'Go to your own homepage right now. If your single best client landed there, would they immediately say this is exactly what I was looking for?'},
+  {section:'GTM Gaps',icon:'🔍',
+   q:'what have you already tried in marketing or GTM that did not work, a channel, a type of content, an outbound approach, and what do you think went wrong?',
+   hint:'knowing what has already been tried and failed saves us 30 days rebuilding the same mistake.',
+   aiHint:'Think about the last thing you invested time or money in for marketing that did not produce results. What did you try and why do you think it did not work?'},
+  {section:'GTM Gaps',icon:'🔍',
+   q:'what is the one thing about Beige Bananas that you think the market completely misunderstands right now?',
+   hint:'the gap between how you see yourselves and how the market sees you is exactly where the narrative work starts.',
+   aiHint:'What do prospects get wrong about you most often? What assumption do you have to correct in almost every first conversation?'},
+];
+
+const KUDOS=[
+  {t:'great',m:'that is exactly the kind of clarity that makes a GTM sprint actually work.'},
+  {t:'fire',m:'most founders take three sessions to get this specific. you just did it in one answer.'},
+  {t:'good',m:'solid. real answer, not a polished one. that is what we can build from.'},
+  {t:'great',m:'this tells us exactly where to focus first. genuinely useful.'},
+  {t:'fire',m:'that is sharper than most founders get six months in.'},
+  {t:'good',m:'clear and honest. that is the best foundation we can build a strategy on.'},
+  {t:'great',m:'you just made the buyer targeting work 10 times easier.'},
+  {t:'fire',m:'that is the kind of self-awareness that separates great GTM from average GTM.'},
+  {t:'good',m:'noted. real data point, not a guess. exactly what shapes the right positioning.'},
+  {t:'great',m:'this answer alone is worth the 15 minutes.'},
+];
+
+let cur=0,answers=new Array(QUESTIONS.length).fill(''),pyramidOrder=SERVICES.map(s=>s.id);
+let uploads=[],streak=0,kudosShown={},aiOpen=false,refined={};
+let mediaRecorder=null,recording=false,audioChunks=[];
+
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+function updateProgress(){
+  const pct=Math.round((cur/QUESTIONS.length)*100);
+  const done=answers.filter(a=>a.trim()).length;
+  document.getElementById('pfill').style.width=pct+'%';
+  document.getElementById('plabel').textContent=`Question ${cur+1} of ${QUESTIONS.length} · ${done} answered`;
+  document.getElementById('ppct').textContent=pct+'%';
+  document.getElementById('dots').innerHTML=QUESTIONS.map((_,i)=>{
+    if(i<cur)return'<div class="dot done"></div>';
+    if(i===cur)return'<div class="dot current"></div>';
+    return'<div class="dot"></div>';
+  }).join('');
+}
+
+function render(){
+  if(cur>=QUESTIONS.length){renderSummary();return;}
+  const q=QUESTIONS[cur];
+  updateProgress();
+  const main=document.getElementById('main');
+  if(q.isPyramid){renderPyramid(main,q);return;}
+  const hasRef=refined[cur];
+  main.innerHTML=`
+    ${streak>=3?`<div class="streak-banner show">🔥 ${streak} in a row, Amrit. keep going.</div>`:''}
+    <div class="section-badge">${q.icon} ${q.section}</div>
+    <div class="q-counter">Question ${cur+1} of ${QUESTIONS.length}</div>
+    <div class="q-text">${q.q}</div>
+    <div class="q-hint">${q.hint}</div>
+    <div>
+      <textarea class="answer-input" id="ans" placeholder="type your answer, or hit speak below...">${answers[cur]||''}</textarea>
+      <div class="word-count" id="wc">0 words</div>
+      <div class="toolbar">
+        <button class="btn-tool btn-voice ${recording?'recording':''}" id="vbtn" onclick="toggleVoice()">
+          ${recording?`<span class="rec-dot"></span> recording, tap to stop`:'🎙 speak answer'}
+        </button>
+        <button class="btn-tool btn-ask" onclick="toggleAI()">✨ ask AI</button>
+        <button class="btn-tool btn-upload" onclick="document.getElementById('file-input').click()">📎 attach</button>
+        ${answers[cur]&&answers[cur].length>30?'<button class="btn-tool btn-refine show" onclick="refineAnswer()">✏️ refine</button>':''}
+        ${uploads.map((f,i)=>`<div class="file-chip">📄 ${f}<button onclick="removeFile(${i})">×</button></div>`).join('')}
+      </div>
+      <div class="ai-panel" id="aip"></div>
+      ${hasRef?`<div class="refined-box show"><div class="refined-label">✏️ refined version</div><div>${refined[cur]}</div><button class="apply-btn" onclick="applyRef()">apply this</button></div>`:''}
+      <div class="kudos" id="kudos"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-skip" onclick="skipQ()">skip for now</button>
+      <button class="btn-next" onclick="nextQ()">${cur===QUESTIONS.length-1?'finish →':'next →'}</button>
+    </div>
+  `;
+  const ta=document.getElementById('ans');
+  ta.addEventListener('input',()=>{
+    answers[cur]=ta.value;updateWC(ta.value);maybeKudos(ta.value);
+    const rb=document.querySelector('.btn-refine');
+    if(rb)rb.className=ta.value.length>30?'btn-tool btn-refine show':'btn-tool btn-refine';
+  });
+  updateWC(ta.value);
+  document.getElementById('file-input').onchange=e=>{
+    uploads=[...uploads,...Array.from(e.target.files).map(f=>f.name)];render();
+  };
+}
+
+function renderPyramid(main,q){
+  main.innerHTML=`
+    ${streak>=3?`<div class="streak-banner show">🔥 ${streak} in a row, Amrit. keep going.</div>`:''}
+    <div class="section-badge">${q.icon} ${q.section}</div>
+    <div class="q-counter">Question ${cur+1} of ${QUESTIONS.length}</div>
+    <div class="q-text">${q.q}</div>
+    <div class="q-hint">${q.hint}</div>
+    <div class="pyramid-wrap">
+      <div class="pyramid-intro">drag to reorder. top = what you lead with. bottom = what you mention last.</div>
+      <div class="pyramid-container" id="plist">
+        ${pyramidOrder.map((id,i)=>{
+          const s=SERVICES.find(x=>x.id===id);
+          const w=100-i*8;
+          return`<div class="pyramid-tier" draggable="true" data-id="${id}"
+            style="width:${w}%;height:44px;background:${s.color};"
+            ondragstart="dStart(event)" ondragover="dOver(event)" ondrop="dDrop(event)" ondragleave="dLeave(event)">
+            <span class="pyramid-rank">#${i+1}</span>
+            <span class="pyramid-tier-label">${s.label}</span>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="pyramid-note">your top service becomes the GTM wedge. everything below is the expansion story.</div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-skip" onclick="skipQ()">skip for now</button>
+      <button class="btn-next" onclick="savePyramid()">next →</button>
+    </div>
+  `;
+}
+
+let dragId=null;
+function dStart(e){dragId=e.currentTarget.dataset.id;e.currentTarget.style.opacity='0.5';}
+function dOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
+function dLeave(e){e.currentTarget.classList.remove('drag-over');}
+function dDrop(e){
+  e.preventDefault();e.currentTarget.classList.remove('drag-over');
+  const did=e.currentTarget.dataset.id;
+  if(dragId&&dragId!==did){
+    const a=pyramidOrder.indexOf(dragId),b=pyramidOrder.indexOf(did);
+    [pyramidOrder[a],pyramidOrder[b]]=[pyramidOrder[b],pyramidOrder[a]];
+    renderPyramid(document.getElementById('main'),QUESTIONS[cur]);
+  }
+  document.querySelectorAll('.pyramid-tier').forEach(t=>t.style.opacity='1');
+}
+function savePyramid(){
+  answers[cur]='Service hierarchy: '+pyramidOrder.map((id,i)=>{
+    return`${i+1}. ${SERVICES.find(x=>x.id===id).label}`;
+  }).join(', ');
+  cur++;aiOpen=false;render();
+}
+
+function updateWC(val){
+  const wc=document.getElementById('wc');if(!wc)return;
+  const w=val.trim()?val.trim().split(/\s+/).length:0;
+  wc.textContent=w+' word'+(w===1?'':'s');
+  wc.className=w>25?'word-count good':'word-count';
+}
+
+function maybeKudos(val){
+  const w=val.trim()?val.trim().split(/\s+/).length:0;
+  if(w>=25&&!kudosShown[cur]){
+    kudosShown[cur]=true;streak++;
+    const k=KUDOS[cur%KUDOS.length];
+    const el=document.getElementById('kudos');if(!el)return;
+    el.className=`kudos show ${k.t}`;
+    const ic={good:'👍',great:'⭐',fire:'🔥'};
+    el.textContent=ic[k.t]+' '+k.m;
+    setTimeout(()=>{if(el)el.classList.remove('show');},5000);
+  }
+}
+
+async function toggleAI(){
+  const p=document.getElementById('aip');if(!p)return;
+  if(aiOpen){p.classList.remove('open');aiOpen=false;return;}
+  p.className='ai-panel open';
+  p.innerHTML='<div class="ai-label">✨ AI hint</div><div style="color:var(--text-muted);font-size:13px">one sec...</div>';
+  aiOpen=true;
+  const q=QUESTIONS[cur];const typed=answers[cur]||'';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:`You are helping Amrit Sinha, CEO of Beige Bananas, answer a GTM discovery form. Give one short specific nudge in 1 to 2 sentences max. Reference real Beige Bananas context where relevant. No generic advice. No preamble.`,
+        messages:[{role:'user',content:`Question: "${q.q}"\nTyped so far: "${typed}"\nContext: ${q.aiHint}`}]
+      })
+    });
+    const d=await res.json();
+    const txt=d.content?.find(b=>b.type==='text')?.text||q.aiHint;
+    p.innerHTML=`<div class="ai-label">✨ AI hint</div><div style="font-size:13px;color:var(--navy)">${txt}</div>`;
+  }catch(e){
+    p.innerHTML=`<div class="ai-label">✨ AI hint</div><div style="font-size:13px;color:var(--navy)">${q.aiHint}</div>`;
+  }
+}
+
+async function refineAnswer(){
+  const ca=answers[cur]||'';if(!ca.trim())return;
+  const btn=document.querySelector('.btn-refine');
+  if(btn){btn.textContent='refining...';btn.disabled=true;}
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:`Fix grammar and spelling only. Keep the person's exact voice and meaning. Return only the corrected text, nothing else.`,
+        messages:[{role:'user',content:ca}]
+      })
+    });
+    const d=await res.json();
+    refined[cur]=d.content?.find(b=>b.type==='text')?.text||ca;
+    render();
+  }catch(e){if(btn){btn.textContent='✏️ refine';btn.disabled=false;}}
+}
+function applyRef(){if(refined[cur]){answers[cur]=refined[cur];delete refined[cur];render();}}
+
+async function toggleVoice(){
+  if(recording){if(mediaRecorder)mediaRecorder.stop();return;}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    audioChunks=[];
+    mediaRecorder=new MediaRecorder(stream,{mimeType:'audio/webm'});
+    mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
+    mediaRecorder.onstop=async()=>{
+      stream.getTracks().forEach(t=>t.stop());recording=false;
+      const ta=document.getElementById('ans');
+      showToast('transcribing your answer...','success');
+      try{
+        const blob=new Blob(audioChunks,{type:'audio/webm'});
+        const reader=new FileReader();
+        reader.onloadend=async()=>{
+          const base64=reader.result.split(',')[1];
+          try{
+            const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+              method:'POST',
+              headers:{'Authorization':'Bearer '+OPENAI_KEY,'Content-Type':'application/json'},
+              body:JSON.stringify({
+                model:'openai/whisper-large-v3-turbo',
+                messages:[{role:'user',content:[
+                  {type:'text',text:'Transcribe this audio exactly as spoken. Return only the transcription, nothing else.'},
+                  {type:'input_audio',input_audio:{data:base64,format:'webm'}}
+                ]}]
+              })
+            });
+            const d=await res.json();
+            const txt=d.choices?.[0]?.message?.content||'';
+            if(txt&&ta){
+              ta.value=(ta.value?ta.value+' ':'')+txt;
+              answers[cur]=ta.value;updateWC(ta.value);maybeKudos(ta.value);
+              const rb=document.querySelector('.btn-refine');
+              if(rb)rb.className=ta.value.length>30?'btn-tool btn-refine show':'btn-tool btn-refine';
+              showToast('transcription done','success');
+            }else{
+              showToast('could not transcribe, please type your answer','error');
+            }
+          }catch(err){showToast('transcription failed, please type your answer','error');}
+          render();
+        };
+        reader.readAsDataURL(blob);
+      }catch(e){
+        showToast('transcription failed, please type your answer','error');
+        render();
+      }
+    };
+    mediaRecorder.start();recording=true;render();
+  }catch(e){
+    showToast('mic access denied, please type your answer.','error');recording=false;
+  }
+}
+
+function skipQ(){answers[cur]='';streak=0;cur++;aiOpen=false;render();}
+function nextQ(){
+  const ta=document.getElementById('ans');if(ta)answers[cur]=ta.value;
+  cur++;aiOpen=false;render();
+}
+function removeFile(i){uploads.splice(i,1);render();}
+
+function buildEmailBody(){
+  const sections=[...new Set(QUESTIONS.map(q=>q.section))];
+  let body='BEIGE BANANAS — GTM DISCOVERY ANSWERS\n';
+  body+='Submitted by: Amrit Sinha\n';
+  body+='Date: '+new Date().toLocaleDateString()+'\n\n';
+  body+='='.repeat(50)+'\n\n';
+  sections.forEach(sec=>{
+    const qs=QUESTIONS.map((q,i)=>({...q,idx:i})).filter(q=>q.section===sec&&answers[q.idx]?.trim());
+    if(!qs.length)return;
+    body+=sec.toUpperCase()+'\n'+'-'.repeat(30)+'\n';
+    qs.forEach(q=>{body+=`Q: ${q.q}\nA: ${answers[q.idx]}\n\n`;});
+  });
+  return body;
+}
+
+async function sendEmail(){
+  const btn=event.target;
+  btn.textContent='sending...';btn.disabled=true;
+  const body=buildEmailBody();
+  try{
+    await emailjs.send(EMAILJS_SERVICE,EMAILJS_TEMPLATE,{
+      title:'BB GTM Discovery — Amrit Sinha',
+      name:'Amrit Sinha',
+      message:body,
+      email:'amrit@beigebananas.com'
+    });
+    showToast('answers sent to Prajhan successfully','success');
+    btn.textContent='sent ✓';
+  }catch(e){
+    showToast('send failed, please copy the brief manually','error');
+    btn.textContent='send answers';btn.disabled=false;
+  }
+}
+
+function renderSummary(){
+  document.getElementById('pwrap').style.display='none';
+  const done=answers.filter(a=>a.trim()).length;
+  const sections=[...new Set(QUESTIONS.map(q=>q.section))];
+  document.getElementById('main').innerHTML=`
+    <div class="complete-hero">
+      <div class="score-circle">
+        <div class="score-num">${done}</div>
+        <div class="score-lbl">of 21</div>
+      </div>
+      <h2>discovery complete, Amrit.</h2>
+      <p>${done===21?'every question answered. the brief will be sharp.':done+' of 21 answered. strong foundation to build from.'}</p>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1.5rem;justify-content:center;">
+      <button class="btn-email" onclick="sendEmail()">📨 send answers to Prajhan</button>
+      <button class="btn-primary" onclick="generateBrief()">✨ generate GTM brief</button>
+    </div>
+    <div id="brief-area"></div>
+    ${sections.map(sec=>{
+      const qs=QUESTIONS.map((q,i)=>({...q,idx:i})).filter(q=>q.section===sec&&answers[q.idx]?.trim());
+      if(!qs.length)return'';
+      return`<div class="summary-card"><div class="summary-sect">${sec}</div>${qs.map(q=>`<div class="summary-q">${q.q}</div><div class="summary-a">${answers[q.idx]}</div>`).join('')}</div>`;
+    }).join('')}
+    <div style="margin-top:1.5rem"><button class="btn-secondary" onclick="restart()">start over</button></div>
+  `;
+}
+
+async function generateBrief(){
+  const ba=document.getElementById('brief-area');if(!ba)return;
+  ba.innerHTML='<div class="generating"><div class="spinner"></div> building your 90-day GTM brief...</div>';
+  const qa=QUESTIONS.map((q,i)=>answers[i]?.trim()?`Q: ${q.q}\nA: ${answers[i]}`:'').filter(Boolean).join('\n\n');
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:`You are a senior B2B GTM strategist. Based on the founder's answers, write a sharp 90-day GTM brief for Beige Bananas. Sections: 1) Business snapshot 2) Revenue target and path 3) ICP and buyer profile 4) Current deal motion 5) Narrative and positioning 6) Service wedge 7) Content and channel priorities 8) Top 3 GTM priorities for the next 90 days. Use the founder's exact words where possible. Flag gaps explicitly. Under 450 words. Plain text only, no markdown.`,
+        messages:[{role:'user',content:`Founder: Amrit Sinha, CEO, Beige Bananas.\n\n${qa}\n\nWrite the 90-day GTM brief.`}]
+      })
+    });
+    const d=await res.json();
+    const txt=d.content?.find(b=>b.type==='text')?.text||'generation failed.';
+    ba.innerHTML=`
+      <div class="brief-card">
+        <div class="brief-title">✨ 90-day GTM brief — Beige Bananas</div>
+        <div id="brief-text">${txt}</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1.5rem">
+        <button class="btn-primary" onclick="copyBrief()">copy brief</button>
+        <button class="btn-secondary" onclick="restart()">start over</button>
+      </div>
+    `;
+  }catch(e){
+    ba.innerHTML='<div class="brief-card"><div class="brief-title">generation failed</div><p style="font-size:13px;color:var(--text-muted)">copy the answers above manually.</p></div>';
+  }
+}
+
+function copyBrief(){
+  const el=document.getElementById('brief-text');
+  if(el)navigator.clipboard.writeText(el.textContent).catch(()=>{});
+  event.target.textContent='copied ✓';
+  setTimeout(()=>event.target.textContent='copy brief',2000);
+}
+
+function restart(){
+  cur=0;answers=new Array(QUESTIONS.length).fill('');
+  pyramidOrder=SERVICES.map(s=>s.id);uploads=[];
+  streak=0;kudosShown={};aiOpen=false;refined={};recording=false;
+  document.getElementById('pwrap').style.display='block';
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
