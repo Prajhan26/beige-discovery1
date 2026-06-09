@@ -162,7 +162,7 @@ textarea.answer-input::placeholder{color:#C0BEDD;font-weight:400;}
 <script>
 emailjs.init('YBzSA-GQjpXaAVkDujiKh');
 
-const OPENAI_KEY = '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';
+
 const EMAILJS_SERVICE = 'service_7pk942j';
 const EMAILJS_TEMPLATE = 'template_lbsct7q';
 
@@ -425,16 +425,16 @@ async function toggleAI(){
   aiOpen=true;
   const q=QUESTIONS[cur];const typed=answers[cur]||'';
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
+    const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer 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','HTTP-Referer':'https://prajhan26.github.io'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        model:'anthropic/claude-sonnet-4-5',max_tokens:1000,
         system:`You are helping Amrit Sinha, CEO of Beige Bananas, answer a GTM discovery form. Give one short specific nudge in 1 to 2 sentences max. Reference real Beige Bananas context where relevant. No generic advice. No preamble.`,
         messages:[{role:'user',content:`Question: "${q.q}"\nTyped so far: "${typed}"\nContext: ${q.aiHint}`}]
       })
     });
     const d=await res.json();
-    const txt=d.content?.find(b=>b.type==='text')?.text||q.aiHint;
+    const txt=d.choices?.[0]?.message?.content||q.aiHint;
     p.innerHTML=`<div class="ai-label">✨ AI hint</div><div style="font-size:13px;color:var(--navy)">${txt}</div>`;
   }catch(e){
     p.innerHTML=`<div class="ai-label">✨ AI hint</div><div style="font-size:13px;color:var(--navy)">${q.aiHint}</div>`;
@@ -446,16 +446,16 @@ async function refineAnswer(){
   const btn=document.querySelector('.btn-refine');
   if(btn){btn.textContent='refining...';btn.disabled=true;}
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
+    const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer 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','HTTP-Referer':'https://prajhan26.github.io'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        model:'anthropic/claude-sonnet-4-5',max_tokens:1000,
         system:`Fix grammar and spelling only. Keep the person's exact voice and meaning. Return only the corrected text, nothing else.`,
         messages:[{role:'user',content:ca}]
       })
     });
     const d=await res.json();
-    refined[cur]=d.content?.find(b=>b.type==='text')?.text||ca;
+    refined[cur]=d.choices?.[0]?.message?.content||ca;
     render();
   }catch(e){if(btn){btn.textContent='✏️ refine';btn.disabled=false;}}
 }
@@ -474,36 +474,26 @@ async function toggleVoice(){
       showToast('transcribing your answer...','success');
       try{
         const blob=new Blob(audioChunks,{type:'audio/webm'});
-        const reader=new FileReader();
-        reader.onloadend=async()=>{
-          const base64=reader.result.split(',')[1];
-          try{
-            const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
-              method:'POST',
-              headers:{'Authorization':'Bearer '+OPENAI_KEY,'Content-Type':'application/json'},
-              body:JSON.stringify({
-                model:'openai/whisper-large-v3-turbo',
-                messages:[{role:'user',content:[
-                  {type:'text',text:'Transcribe this audio exactly as spoken. Return only the transcription, nothing else.'},
-                  {type:'input_audio',input_audio:{data:base64,format:'webm'}}
-                ]}]
-              })
-            });
-            const d=await res.json();
-            const txt=d.choices?.[0]?.message?.content||'';
-            if(txt&&ta){
-              ta.value=(ta.value?ta.value+' ':'')+txt;
-              answers[cur]=ta.value;updateWC(ta.value);maybeKudos(ta.value);
-              const rb=document.querySelector('.btn-refine');
-              if(rb)rb.className=ta.value.length>30?'btn-tool btn-refine show':'btn-tool btn-refine';
-              showToast('transcription done','success');
-            }else{
-              showToast('could not transcribe, please type your answer','error');
-            }
-          }catch(err){showToast('transcription failed, please type your answer','error');}
-          render();
-        };
-        reader.readAsDataURL(blob);
+        const fd=new FormData();
+        fd.append('file',new File([blob],'audio.webm',{type:'audio/webm'}));
+        fd.append('model','openai/whisper-large-v3-turbo');
+        const res=await fetch('https://openrouter.ai/api/v1/audio/transcriptions',{
+          method:'POST',
+          headers:{'Authorization':'Bearer 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'},
+          body:fd
+        });
+        const d=await res.json();
+        const txt=d.text||'';
+        if(txt&&ta){
+          ta.value=(ta.value?ta.value+' ':'')+txt;
+          answers[cur]=ta.value;updateWC(ta.value);maybeKudos(ta.value);
+          const rb=document.querySelector('.btn-refine');
+          if(rb)rb.className=ta.value.length>30?'btn-tool btn-refine show':'btn-tool btn-refine';
+          showToast('transcription done','success');
+        }else{
+          showToast('could not transcribe, please type your answer','error');
+        }
+        render();
       }catch(e){
         showToast('transcription failed, please type your answer','error');
         render();
@@ -588,16 +578,16 @@ async function generateBrief(){
   ba.innerHTML='<div class="generating"><div class="spinner"></div> building your 90-day GTM brief...</div>';
   const qa=QUESTIONS.map((q,i)=>answers[i]?.trim()?`Q: ${q.q}\nA: ${answers[i]}`:'').filter(Boolean).join('\n\n');
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
+    const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer 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','HTTP-Referer':'https://prajhan26.github.io'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        model:'anthropic/claude-sonnet-4-5',max_tokens:1000,
         system:`You are a senior B2B GTM strategist. Based on the founder's answers, write a sharp 90-day GTM brief for Beige Bananas. Sections: 1) Business snapshot 2) Revenue target and path 3) ICP and buyer profile 4) Current deal motion 5) Narrative and positioning 6) Service wedge 7) Content and channel priorities 8) Top 3 GTM priorities for the next 90 days. Use the founder's exact words where possible. Flag gaps explicitly. Under 450 words. Plain text only, no markdown.`,
         messages:[{role:'user',content:`Founder: Amrit Sinha, CEO, Beige Bananas.\n\n${qa}\n\nWrite the 90-day GTM brief.`}]
       })
     });
     const d=await res.json();
-    const txt=d.content?.find(b=>b.type==='text')?.text||'generation failed.';
+    const txt=d.choices?.[0]?.message?.content||'generation failed.';
     ba.innerHTML=`
       <div class="brief-card">
         <div class="brief-title">✨ 90-day GTM brief — Beige Bananas</div>
